@@ -83,38 +83,43 @@ class Agent:
                 actor_loss.backward()
                 self.actor_optimizer.step()
 
-                for param, target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
-                    target_param.data.copy_((tau * target_param.data) + ((1 - tau) * param.data))
+                for actor_param, actor_target_param in zip(self.actor.parameters(), self.actor_target.parameters()):
+                    new_actor_param_data = (tau * actor_target_param.data) + ((1 - tau) * actor_param.data)
+                    actor_target_param.data.copy_(new_actor_param_data)
 
-                for param, target_param in zip(self.critic_1.parameters(), self.critic_1_target.parameters()):
-                    target_param.data.copy_((tau * target_param.data) + ((1 - tau) * param.data))
+                for critic_1_param, critic_1_target_param in zip(self.critic_1.parameters(),
+                                                                 self.critic_1_target.parameters()):
+                    new_critic_1_param_data = (tau * critic_1_target_param.data) + ((1 - tau) * critic_1_param.data)
+                    critic_1_target_param.data.copy_(new_critic_1_param_data)
 
-                for param, target_param in zip(self.critic_2.parameters(), self.critic_2_target.parameters()):
-                    target_param.data.copy_((tau * target_param.data) + ((1 - tau) * param.data))
+                for critic_2_param, critic_2_target_param in zip(self.critic_2.parameters(),
+                                                                 self.critic_2_target.parameters()):
+                    new_critic_2_param_data = (tau * critic_2_target_param.data) + ((1 - tau) * critic_2_param.data)
+                    critic_2_target_param.data.copy_(new_critic_2_param_data)
 
-    def save(self, dir, file):
-        torch.save(self.actor.state_dict(), dir + '/' + file + '_actor.pth')
-        torch.save(self.actor_target.state_dict(), dir + '/' + file + '_actor_target.pth')
+    def save(self, dirr, file):
+        torch.save(self.actor.state_dict(), dirr + '/' + file + '_actor.pth')
+        torch.save(self.actor_target.state_dict(), dirr + '/' + file + '_actor_target.pth')
 
-        torch.save(self.critic_1.state_dict(), dir + '/' + file + '_critic_1.pth')
-        torch.save(self.critic_1_target.state_dict(), dir + '/' + file + '_critic_1_target.pth')
+        torch.save(self.critic_1.state_dict(), dirr + '/' + file + '_critic_1.pth')
+        torch.save(self.critic_1_target.state_dict(), dirr + '/' + file + '_critic_1_target.pth')
 
-        torch.save(self.critic_2.state_dict(), dir + '/' + file + '_critic_2.pth')
-        torch.save(self.critic_2_target.state_dict(), dir + '/' + file + '_critic_2_target.pth')
+        torch.save(self.critic_2.state_dict(), dirr + '/' + file + '_critic_2.pth')
+        torch.save(self.critic_2_target.state_dict(), dirr + '/' + file + '_critic_2_target.pth')
 
-    def load(self, dir, file):
+    def load(self, dirr, file):
         self.actor.load_state_dict(
-            torch.load(dir + '/' + file + '_actor.pth', map_location=lambda storage, loc: storage))
+            torch.load(dirr + '/' + file + '_actor.pth', map_location=lambda storage, loc: storage))
         self.actor_target.load_state_dict(
-            torch.load(dir + '/' + file + '_actor_target.pth', map_location=lambda storage, loc: storage))
+            torch.load(dirr + '/' + file + '_actor_target.pth', map_location=lambda storage, loc: storage))
 
         self.critic_1.load_state_dict(
-            torch.load(dir + '/' + file + '_critic_1.pth', map_location=lambda storage, loc: storage))
+            torch.load(dirr + '/' + file + '_critic_1.pth', map_location=lambda storage, loc: storage))
         self.critic_1_target.load_state_dict(
-            torch.load(dir + '/' + file + '_critic_1_target.pth', map_location=lambda storage, loc: storage))
+            torch.load(dirr + '/' + file + '_critic_1_target.pth', map_location=lambda storage, loc: storage))
 
         self.critic_2.load_state_dict(
-            torch.load(dir + '/' + file + '_critic_2.pth', map_location=lambda storage, loc: storage))
+            torch.load(dirr + '/' + file + '_critic_2.pth', map_location=lambda storage, loc: storage))
         self.critic_2_target.load_state_dict(
-            torch.load(dir + '/' + file + '_critic_2_target.pth', map_location=lambda storage, loc: storage))
+            torch.load(dirr + '/' + file + '_critic_2_target.pth', map_location=lambda storage, loc: storage))
 
