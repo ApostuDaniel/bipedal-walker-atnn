@@ -23,10 +23,10 @@ POLICY_DELAY = 2  # delayed policy updates parameter
 MAX_EPISODES = 2000
 MAX_STEPS_PER_EPISODE = 2000
 
-DIR = "./saves"
+DIR = "./saved"
 FILE = "TD3_" + ENV_NAME + "_" + str(RANDOM_SEED)
 
-START_EPISODE = 1000
+START_EPISODE = 1
 
 
 def train():
@@ -45,7 +45,7 @@ def train():
     agent = Agent(state_size, action_size, max_action, LR)
 
     # comment this line if you don't want to load a previous model, also change START_EPISODE to 1
-    agent.load(DIR, FILE + '_' + str(START_EPISODE))
+    #agent.load(DIR, FILE + '_solved')
 
     average_reward = 0
     episode_reward = 0
@@ -61,17 +61,18 @@ def train():
             action = action + np.random.normal(0, EXPLORATION_NOISE, size=env.action_space.shape[0])
             action = action.clip(action_low, action_high)
 
-            next_state, reward, done, _, _ = env.step(action)
+            next_state, reward, done, truncated, _ = env.step(action)
             memory.save_experience((state, action, reward, next_state, float(done)))
             state = next_state
 
             average_reward += reward
             episode_reward += reward
 
+
             # if episode is done then update agent:
-            if done or timestep == (MAX_STEPS_PER_EPISODE - 1):
+            if done or truncated or timestep == (MAX_STEPS_PER_EPISODE - 1):
                 agent.update(memory, timestep, batch_size=BATCH_SIZE, gamma=GAMMA, tau=TAU,
-                             noise=NOISE, noise_clip=NOISE_CLIP, policy_delay=POLICY_DELAY)
+                             start_noise=NOISE, noise_clip=NOISE_CLIP, policy_delay=POLICY_DELAY)
                 break
 
         fd.write(str(episode) + ' ' + str(episode_reward) + '\n')
@@ -139,8 +140,8 @@ def test():
     env.close()
 
 
-IS_TRAINING = False
-IS_TESTING = True
+IS_TRAINING = True
+IS_TESTING = False
 
 if __name__ == '__main__':
     if IS_TRAINING:

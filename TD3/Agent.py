@@ -45,16 +45,16 @@ class Agent:
         return self.actor(state).cpu().data.numpy().flatten()
 
     def update(self, memory, current_timestep, batch_size=100,
-               gamma=0.99, tau=0.995, noise=0.2, noise_clip=0.5, policy_delay=2):
+               gamma=0.99, tau=0.995, start_noise=0.2, noise_clip=0.5, policy_delay=2):
         for i in range(current_timestep):
-            state, action, reward, next_state, done = memory.sample(batch_size)
+            state, action1, reward, next_state, done = memory.sample(batch_size)
             state = torch.FloatTensor(state).to(device)
-            action = torch.FloatTensor(action).to(device)
+            action = torch.FloatTensor(action1).to(device)
             reward = torch.FloatTensor(reward).reshape((batch_size, 1)).to(device)
             next_state = torch.FloatTensor(next_state).to(device)
             done = torch.FloatTensor(done).reshape((batch_size, 1)).to(device)
 
-            noise = torch.FloatTensor(action).data.normal_(0, noise).to(device)
+            noise = torch.FloatTensor(action1).data.normal_(0, start_noise).to(device)
             noise = noise.clamp(-noise_clip, noise_clip)
             next_action = (self.actor_target(next_state) + noise)
             next_action = next_action.clamp(-self.max_action, self.max_action)
